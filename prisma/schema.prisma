@@ -1,0 +1,56 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Portfolio {
+  id                  String    @id @default(cuid())
+  projectTitle        String
+  role                String
+  projectDescription  String    @db.Text
+  skillsDeliverables  String    @db.Text  // Stored as comma-separated values
+  status              Status    @default(DRAFT)
+  thumbnail           String?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  media               PortfolioMedia[]
+}
+
+model PortfolioMedia {
+  id          String    @id @default(cuid())
+  portfolioId String
+  heading     String?
+  description String?   @db.Text
+  url         String?
+  urlTitle    String?
+  mediaUrl    String?
+  position    Int?       @default(0)
+  createdAt   DateTime  @default(now())
+  type        PortfolioMediaType
+  updatedAt   DateTime  @updatedAt
+  portfolio   Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+}
+
+enum Status {
+  DRAFT
+  PUBLISHED
+}
+
+enum PortfolioMediaType {
+  IMAGE
+  VIDEO
+  DOCUMENT
+  AUDIO
+  TEXT
+  URL
+}
